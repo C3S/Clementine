@@ -63,6 +63,8 @@ const int SoundCloudService::kSearchDelayMsec = 400;
 const int SoundCloudService::kSongSearchLimit = 100;
 const int SoundCloudService::kSongSimpleSearchLimit = 10;
 
+NetworkAccessManager* network_;
+
 typedef QPair<QString, QString> Param;
 
 SoundCloudService::SoundCloudService(Application* app, InternetModel* parent)

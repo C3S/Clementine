@@ -49,6 +49,8 @@
 #include "internet/lastfm/lastfmservice.h"
 #endif  // HAVE_LIBLASTFM
 
+#include "internet/c3simp/c3simpservice.h"
+
 #ifdef HAVE_MOODBAR
 #include "moodbar/moodbarcontroller.h"
 #include "moodbar/moodbarloader.h"
@@ -81,7 +83,8 @@ Application::Application(QObject* parent)
       moodbar_controller_(nullptr),
       network_remote_(nullptr),
       network_remote_helper_(nullptr),
-      scrobbler_(nullptr) {
+      scrobbler_(nullptr),
+      c3simpr_(nullptr){
   tag_reader_client_ = new TagReaderClient(this);
   MoveToNewThread(tag_reader_client_);
   tag_reader_client_->Start();
@@ -135,6 +138,8 @@ Application::Application(QObject* parent)
 #ifdef HAVE_LIBLASTFM
   scrobbler_ = new LastFMService(this, this);
 #endif  // HAVE_LIBLASTFM
+
+  c3simpr_ = new C3sImpService(this, this);
 
   library_->Init();
 

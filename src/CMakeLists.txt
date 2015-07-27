@@ -159,6 +159,10 @@ set(SOURCES
   globalsearch/suggestionwidget.cpp
   globalsearch/urlsearchprovider.cpp
 
+  internet/c3simp/c3simpsettingspage.cpp
+  internet/c3simp/c3simpservice.cpp
+  internet/c3simp/c3simpdb.cpp
+  internet/c3simp/c3simpstreamer.cpp
   internet/core/cloudfilesearchprovider.cpp
   internet/core/cloudfileservice.cpp
   internet/digitally/digitallyimportedclient.cpp
@@ -469,6 +473,10 @@ set(HEADERS
   globalsearch/spotifysearchprovider.h
   globalsearch/suggestionwidget.h
 
+  internet/c3simp/c3simpsettingspage.h
+  internet/c3simp/c3simpservice.h
+  internet/c3simp/c3simpdb.h
+  internet/c3simp/c3simpstreamer.h
   internet/core/cloudfileservice.h
   internet/digitally/digitallyimportedclient.h
   internet/digitally/digitallyimportedservicebase.h
@@ -690,6 +698,7 @@ set(UI
   globalsearch/searchproviderstatuswidget.ui
   globalsearch/suggestionwidget.ui
 
+  internet/c3simp/c3simpsettingspage.ui
   internet/digitally/digitallyimportedsettingspage.ui
   internet/grooveshark/groovesharksettingspage.ui
   internet/icecast/icecastfilterwidget.ui

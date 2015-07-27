@@ -57,6 +57,7 @@ Player::Player(Application* app, QObject* parent)
     : PlayerInterface(parent),
       app_(app),
       lastfm_(nullptr),
+      c3simp_(nullptr),
       engine_(new GstEngine(app_->task_manager())),
       stream_change_type_(Engine::First),
       last_state_(Engine::Empty),
@@ -95,6 +96,8 @@ void Player::Init() {
 #ifdef HAVE_LIBLASTFM
   lastfm_ = app_->scrobbler();
 #endif
+
+  c3simp_ = app_->c3simpr();
 }
 
 void Player::ReloadSettings() {
@@ -410,6 +413,8 @@ void Player::PlayAt(int index, Engine::TrackChangeFlags change,
     if (lastfm_->IsScrobblingEnabled())
       lastfm_->NowPlaying(current_item_->Metadata());
 #endif
+
+    //c3simp_->NowPlaying(current_item_->Metadata());    wrong place...
   }
 }
 
@@ -421,6 +426,8 @@ void Player::CurrentMetadataChanged(const Song& metadata) {
 #ifdef HAVE_LIBLASTFM
   lastfm_->NowPlaying(metadata);
 #endif
+
+  c3simp_->NowPlaying(metadata);
 }
 
 void Player::SeekTo(int seconds) {
