@@ -16,40 +16,51 @@
    You should have received a copy of the GNU General Public License
    along with Clementine.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "c3simpstreamer.h"
+#include "adorestreamer.h"
 
 #include "core/logging.h"
+#include "echoprint/Codegen.h"
 
 #include <chromaprint.h>
 
-#define FINGERPRINTING_ALGORITHM_CHROMAPRINT
+// decide which fingerprinting algorithm to use:
+//#define FINGERPRINTING_ALGORITHM_CHROMAPRINT
+#define FINGERPRINTING_ALGORITHM_ECHOPRINT
 
-C3sImpStreamer::C3sImpStreamer()
+AdoreStreamer::AdoreStreamer()
 {
     probing_ = false;
     samplerate_ = 0;
 #if defined(FINGERPRINTING_ALGORITHM_CHROMAPRINT)
     fingerprinting_algorithm_ = "chromaprint";
     fingerprinting_algorithm_version_ = QString::number(((int)CHROMAPRINT_ALGORITHM_DEFAULT));
+#else // #if defined(FINGERPRINTING_ALGORITHM_ECHOPRINT)
+    fingerprinting_algorithm_ = "echoprint";
+    fingerprinting_algorithm_version_ = "4.12";
 #endif
 }
 
-C3sImpStreamer::~C3sImpStreamer()
+AdoreStreamer::~AdoreStreamer()
 {
     engine_->RemoveBufferConsumer(this);
 }
 
-void C3sImpStreamer::SetEngine(GstEngine* engine) {
+//! Pass the GStreamer Engine object to the class and get a `BufferConsumer` hook
+void AdoreStreamer::SetEngine(GstEngine* engine) {
   engine_ = engine;
   engine_->AddBufferConsumer(this);
 }
 
-void C3sImpStreamer::ConsumeBuffer(GstBuffer* buffer, int pipeline_id) {
+//! Callback for receiving audio buffers.
+//! This member function collects audio data for MINIMUM_PROBING_DURATION seconds
+//! after StartProbing() was initiated, then GetFingerprint() is being called.
+//! @see StartProbing() @see SetEngine() for hooking @see ~AdoreStreamer() for unhooking
+void AdoreStreamer::ConsumeBuffer(GstBuffer* buffer, int pipeline_id) {
   // gst_buffer_ref(buffer); -- dont ref it here, it already has been ref'ed in the engine for each BufferConsumer
   if (probing_)
   {
     GstMapInfo map;
-    gst_buffer_map(buffer, &map, GST_MAP_READ);
+    gst_buffer_map(buffer, &map, GST_MAP_READ); // get physical access to the buffer memory
 
     const int samples_per_channel = map.size / sizeof(short) / 2;
     const int samplerate = (int)((((uint64_t)samples_per_channel * 10000000000) / buffer->duration) + 5) / 10;
@@ -77,10 +88,11 @@ void C3sImpStreamer::ConsumeBuffer(GstBuffer* buffer, int pipeline_id) {
 
     gst_buffer_unmap(buffer, &map);
   }
-  gst_buffer_unref(buffer);
+  gst_buffer_unref(buffer); // already ref'ed in GstEnginePipeline
 }
 
-void C3sImpStreamer::StartProbing()
+//! tell ConsumeBuffer() to start collecting audio buffers for later fingerprinting
+void AdoreStreamer::StartProbing()
 {
   if (probing_) StopProbing();
   probing_ = true;
@@ -89,7 +101,8 @@ void C3sImpStreamer::StartProbing()
   buffer_.open(QIODevice::WriteOnly);
 }
 
-void C3sImpStreamer::StopProbing()
+//! stops collecting buffers and erases existing audio data from the fingerprinting buffer
+void AdoreStreamer::StopProbing()
 {
   if (probing_)
   {
@@ -102,8 +115,10 @@ void C3sImpStreamer::StopProbing()
 //--- private functions down here ---
 
 
-// note: target_buffer has to be source_numsamples / source_numberofchannels in size
-void C3sImpStreamer::MonoMix(const short *source_buffer, int source_numsamples, int source_numberofchannels, int source_samplingrate, short *target_buffer, int target_buffer_size)
+/// This private member is called by GetFingerprint() and creates a mono mix
+/// from stereo or multichannel audio data.
+/// Note: target_buffer has to be source_numsamples / source_numberofchannels in size
+void AdoreStreamer::MonoMix(const short *source_buffer, int source_numsamples, int source_numberofchannels, int source_samplingrate, short *target_buffer, int target_buffer_size)
 {
   int source_index, target_index;
   // theoretically: const int target_buffer_size = source_numsamples / source_numberofchannels * 11025 / source_samplingrate;
@@ -124,7 +139,11 @@ void C3sImpStreamer::MonoMix(const short *source_buffer, int source_numsamples, 
   }
 }
 
-void C3sImpStreamer::GetFingerprint(QString &fingerprint)
+/// After enough audio data has been collected in `buffer_` a fingerprint is being created from a mono downmix.
+/// Currently, *EchoPrint* and *ChromaPrint* are implemented.
+/// Just uncomment the corresponding `#define` at the start
+/// of the cpp file. @see ChromaPrint() @see EchoPrint()
+void AdoreStreamer::GetFingerprint(QString &fingerprint)
 {
   QByteArray& buffer_qba = buffer_.buffer();
   if (!probing_ && buffer_qba.size())
@@ -137,7 +156,11 @@ void C3sImpStreamer::GetFingerprint(QString &fingerprint)
     monobuffer = new short[monobuffer_size];
     MonoMix(reinterpret_cast<const short*>(buffer_qba.data()), source_numsamples, 2, samplerate_, monobuffer, monobuffer_size);
 
+#if defined(FINGERPRINTING_ALGORITHM_CHROMAPRINT)
     fingerprint = ChromaPrint(monobuffer, monobuffer_size);
+#else // #if defined(FINGERPRINTING_ALGORITHM_ECHOPRINT)
+    fingerprint = EchoPrint(monobuffer, monobuffer_size);
+#endif
 
     delete monobuffer;
     buffer_.buffer().clear();
@@ -146,8 +169,9 @@ void C3sImpStreamer::GetFingerprint(QString &fingerprint)
     fingerprint = "";
 }
 
-// size: number of shorts in data
-QString C3sImpStreamer::ChromaPrint(short *data, int size)
+/// Creates a ChromaPrint audio fingerprint as used by MusicBrainz.
+/// The parameter `size` holds the number of shorts in `data`.
+QString AdoreStreamer::ChromaPrint(short *data, int size)
 {
   ChromaprintContext* chromaprint =
       chromaprint_new(CHROMAPRINT_ALGORITHM_DEFAULT);
@@ -173,4 +197,26 @@ QString C3sImpStreamer::ChromaPrint(short *data, int size)
   chromaprint_free(chromaprint);
 
   return QString(fingerprint);
+}
+
+/// Creates a EchoPrint audio fingerprint as used by EchoNest/last.fm.
+/// The parameter `size` holds the number of shorts in `data`.
+/// Note that the short int samples in the mono buffer have to be
+/// converted to floats before passing to the fingerprinting algorithm.
+QString AdoreStreamer::EchoPrint(short *data, int size)
+{
+  // first, convert short ints to floats
+  int i;
+  float *floatbuffer = new float[size];
+  for (i = 0; i < size; i++)
+  {
+    floatbuffer[i] = (float)data[i] / 32768.0;
+  }
+
+  // create fingerprint (code)
+  Codegen g(floatbuffer, size, 0);
+
+  delete floatbuffer;
+
+  return QString::fromStdString(g.getCodeString());
 }

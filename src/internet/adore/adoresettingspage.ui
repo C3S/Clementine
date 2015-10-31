@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>C3sImpSettingsPage</class>
- <widget class="QWidget" name="C3sImpSettingsPage">
+ <class>AdoreSettingsPage</class>
+ <widget class="QWidget" name="AdoreSettingsPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>C3S IMP</string>
+   <string>Adore</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -35,7 +35,7 @@
          </size>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Please press the 'Authenticate' button to associate this player with your C3S IMP account using a unique token. This will open a browser window and you are asked to enter your C3S IMP user and password. Only if you connect the player to your account the C3S IMP service can measure your adoration and distribute your financial contributions. If you do not have an account yet, you will be able to register one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Please press the 'Authenticate' button to associate this player with your Adore account using a unique token. This will open a browser window and you are asked to enter your Adore user and password. Only if you connect the player to your account the Adore service can measure your adoration and distribute your financial contributions. If you do not have an account yet, you will be able to register one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="scaledContents">
          <bool>false</bool>
@@ -48,7 +48,7 @@
       <item row="4" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>C3S IMP token</string>
+         <string>Adore token</string>
         </property>
        </widget>
       </item>
@@ -82,7 +82,7 @@
       <item>
        <widget class="QCheckBox" name="lowRatingException">
         <property name="text">
-         <string>Don't support tracks rated with two ore less stars</string>
+         <string>Don't adore tracks rated with two ore less stars</string>
         </property>
         <property name="checked">
          <bool>true</bool>

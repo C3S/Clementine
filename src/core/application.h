@@ -94,7 +94,7 @@ class Application : public QObject {
     return network_remote_helper_;
   }
   Scrobbler* scrobbler() const { return scrobbler_; }
-  Scrobbler* c3simpr() const { return c3simpr_; }
+  Scrobbler* adorer() const { return adorer_; }
 
   LibraryBackend* library_backend() const;
   LibraryModel* library_model() const;
@@ -139,7 +139,7 @@ class Application : public QObject {
   NetworkRemote* network_remote_;
   NetworkRemoteHelper* network_remote_helper_;
   Scrobbler* scrobbler_;
-  Scrobbler* c3simpr_;
+  Scrobbler* adorer_;
 
   QList<QObject*> objects_in_threads_;
   QList<QThread*> threads_;

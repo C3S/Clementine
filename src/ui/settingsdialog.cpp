@@ -35,7 +35,7 @@
 #include "engines/enginebase.h"
 #include "engines/gstengine.h"
 #include "globalsearch/globalsearchsettingspage.h"
-#include "internet/c3simp/c3simpsettingspage.h"
+#include "internet/adore/adoresettingspage.h"
 #include "internet/digitally/digitallyimportedsettingspage.h"
 #include "internet/grooveshark/groovesharksettingspage.h"
 #include "internet/core/internetshowsettingspage.h"
@@ -161,7 +161,7 @@ SettingsDialog::SettingsDialog(Application* app, BackgroundStreams* streams,
   // Internet providers
   QTreeWidgetItem* providers = AddCategory(tr("Internet providers"));
 
-  AddPage(Page_C3sImp, new C3sImpSettingsPage(this), providers);
+  AddPage(Page_Adore, new AdoreSettingsPage(this), providers);
 
 #ifdef HAVE_LIBLASTFM
   AddPage(Page_Lastfm, new LastFMSettingsPage(this), providers);

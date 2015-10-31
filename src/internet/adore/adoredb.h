@@ -16,8 +16,8 @@
    You should have received a copy of the GNU General Public License
    along with Clementine.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef C3SIMPDB_H
-#define C3SIMPDB_H
+#ifndef ADOREDB_H
+#define ADOREDB_H
 
 #include <QObject>
 #include <QSqlDatabase>
@@ -26,20 +26,27 @@
 #include <QFile>
 #include <QDir>
 
-#define C3SIMPDB_VERSION "101"   // the version for this code hadling db access
+#define ADOREDB_VERSION "101"   ///< the version for this code hadling db access
 
-// server response types as in column 'type' in the db, derived from the http codes, e.g. 200 = OK
+//! server response types as in column 'type' in the db, derived from the http codes, e.g. 200 = OK, 400 = Error
 #define TYPE_UNKNOWN 0
 #define TYPE_DELAY 1
 #define TYPE_SUCCESS 2
 #define TYPE_WARNING 3
 #define TYPE_ERROR 4
 
-class C3sImpDb : public QObject
+/*! This class handles SQLite access to the queue file.
+ *  The queue is used e.g. when no internet access is possible
+ *  and utilizations have to be stored until they can be
+ *  transferred when an internet connection is available again.
+ *  All member functions except `LastError()` return `true`
+ *  upon success.
+ */
+class AdoreDb : public QObject
 {
 public:
-  C3sImpDb(QObject *parent = 0);
-  ~C3sImpDb();
+  AdoreDb();
+  ~AdoreDb();
 
 public:
   bool Open();
@@ -51,7 +58,8 @@ public:
 private:
   QSqlDatabase db;
 
-  static const char* kFileName;
+  static const char* kFileName;   ///< the queue db filename is defined here.
+  static const char* kLinuxPath;  ///< under Linux the extra Clementine config path (based on the home directory) is defined here.
 };
 
-#endif // C3SIMPDB_H
+#endif // ADOREDB_H

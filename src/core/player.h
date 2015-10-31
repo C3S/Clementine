@@ -192,7 +192,7 @@ class Player : public PlayerInterface {
  private:
   Application* app_;
   Scrobbler* lastfm_;
-  Scrobbler* c3simp_;
+  Scrobbler* adore_;
   QSettings settings_;
 
   PlaylistItemPtr current_item_;

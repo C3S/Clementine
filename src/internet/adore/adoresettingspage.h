@@ -21,21 +21,23 @@
    along with Clementine.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef INTERNET_C3SIMP_C3SIMPSETTINGSPAGE_H_
-#define INTERNET_C3SIMP_C3SIMPSETTINGSPAGE_H_
+#ifndef INTERNET_ADORE_ADORESETTINGSPAGE_H_
+#define INTERNET_ADORE_ADORESETTINGSPAGE_H_
 
 #include "ui/settingspage.h"
-//#include "c3simpservice.h"
+//#include "adoreservice.h"
 
-class C3sImpService;
-class Ui_C3sImpSettingsPage;
+class AdoreService;
+class Ui_AdoreSettingsPage;
 
-class C3sImpSettingsPage : public SettingsPage {
+/*! This class handles the settings dialog.
+ */
+class AdoreSettingsPage : public SettingsPage {
   Q_OBJECT
 
  public:
-  explicit C3sImpSettingsPage(SettingsDialog* dialog);
-  ~C3sImpSettingsPage();
+  explicit AdoreSettingsPage(SettingsDialog* dialog);
+  ~AdoreSettingsPage();
 
   void Load();
   void Save();
@@ -46,12 +48,12 @@ class C3sImpSettingsPage : public SettingsPage {
   void Logout();
 
  private:
-  C3sImpService* service_;
-  Ui_C3sImpSettingsPage* ui_;
+  AdoreService* service_;
+  Ui_AdoreSettingsPage* ui_;
 
-  bool waiting_for_auth_;
+  bool waiting_for_auth_; ///< remnant of the lastfm implementation. maybe use it in the future for better ui integration
 
-  void RefreshControls(bool authenticated);
+  void RefreshControls(bool authenticated); ///< this controls the 'logged in' status control of the Adore settings page
 };
 
-#endif  // INTERNET_C3SIMP_C3SIMPSETTINGSPAGE_H_
+#endif  // INTERNET_ADORE_ADORESETTINGSPAGE_H_

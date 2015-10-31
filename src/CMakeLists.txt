@@ -133,6 +133,13 @@ set(SOURCES
   devices/deviceviewcontainer.cpp
   devices/filesystemdevice.cpp
 
+  echoprint/Base64.cpp
+  echoprint/Codegen.cpp
+  echoprint/Fingerprint.cpp
+  echoprint/MatrixUtility.cpp
+  echoprint/SubbandAnalysis.cpp
+  echoprint/Whitening.cpp
+
   engines/devicefinder.cpp
   engines/enginebase.cpp
   engines/gstengine.cpp
@@ -159,10 +166,10 @@ set(SOURCES
   globalsearch/suggestionwidget.cpp
   globalsearch/urlsearchprovider.cpp
 
-  internet/c3simp/c3simpsettingspage.cpp
-  internet/c3simp/c3simpservice.cpp
-  internet/c3simp/c3simpdb.cpp
-  internet/c3simp/c3simpstreamer.cpp
+  internet/adore/adoresettingspage.cpp
+  internet/adore/adoreservice.cpp
+  internet/adore/adoredb.cpp
+  internet/adore/adorestreamer.cpp
   internet/core/cloudfilesearchprovider.cpp
   internet/core/cloudfileservice.cpp
   internet/digitally/digitallyimportedclient.cpp
@@ -457,6 +464,16 @@ set(HEADERS
   devices/deviceviewcontainer.h
   devices/filesystemdevice.h
 
+  echoprint/Base64.h
+  echoprint/Codegen.h
+  echoprint/Common.h
+  echoprint/Fingerprint.h
+  echoprint/MatrixUtility.h
+  echoprint/Params.h
+  echoprint/SubbandAnalysis.h
+  echoprint/Whitening.h
+  echoprint/win_funcs.h
+
   engines/enginebase.h
   engines/gstengine.h
   engines/gstenginepipeline.h
@@ -473,10 +490,10 @@ set(HEADERS
   globalsearch/spotifysearchprovider.h
   globalsearch/suggestionwidget.h
 
-  internet/c3simp/c3simpsettingspage.h
-  internet/c3simp/c3simpservice.h
-  internet/c3simp/c3simpdb.h
-  internet/c3simp/c3simpstreamer.h
+  internet/adore/adoresettingspage.h
+  internet/adore/adoreservice.h
+  internet/adore/adoredb.h
+  internet/adore/adorestreamer.h
   internet/core/cloudfileservice.h
   internet/digitally/digitallyimportedclient.h
   internet/digitally/digitallyimportedservicebase.h
@@ -698,7 +715,7 @@ set(UI
   globalsearch/searchproviderstatuswidget.ui
   globalsearch/suggestionwidget.ui
 
-  internet/c3simp/c3simpsettingspage.ui
+  internet/adore/adoresettingspage.ui
   internet/digitally/digitallyimportedsettingspage.ui
   internet/grooveshark/groovesharksettingspage.ui
   internet/icecast/icecastfilterwidget.ui

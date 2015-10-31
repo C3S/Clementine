@@ -22,13 +22,13 @@
    along with Clementine.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "c3simpsettingspage.h"
-#include "ui_c3simpsettingspage.h"
+#include "adoresettingspage.h"
+#include "ui_adoresettingspage.h"
 
 #include <QMessageBox>
 #include <QSettings>
 
-#include "c3simpservice.h"
+#include "adoreservice.h"
 #include "internet/core/internetmodel.h"
 #include "core/application.h"
 #include "ui/iconloader.h"
@@ -36,25 +36,19 @@
 #include <QDesktopServices>
 #include <QCryptographicHash>
 
-C3sImpSettingsPage::C3sImpSettingsPage(SettingsDialog* dialog)
+AdoreSettingsPage::AdoreSettingsPage(SettingsDialog* dialog)
     : SettingsPage(dialog),
-      service_(static_cast<C3sImpService*>(dialog->app()->c3simpr())),
-      ui_(new Ui_C3sImpSettingsPage),
+      service_(static_cast<AdoreService*>(dialog->app()->adorer())),
+      ui_(new Ui_AdoreSettingsPage),
       waiting_for_auth_(false) {
     ui_->setupUi(this);
 
   // Icons
-  setWindowIcon(QIcon(":/providers/c3simp.png"));
+  setWindowIcon(QIcon(":/providers/adore.png"));
 
-/*  connect(service_, SIGNAL(AuthenticationComplete(bool, QString)),
-          SLOT(AuthenticationComplete(bool, QString)));
-  connect(ui_->login_state, SIGNAL(LogoutClicked()), SLOT(Logout()));
-  connect(ui_->login_state, SIGNAL(LoginClicked()), SLOT(Login()));
-*/  connect(ui_->register_token, SIGNAL(clicked()), SLOT(RegisterToken()));
+  connect(ui_->register_token, SIGNAL(clicked()), SLOT(RegisterToken()));
 
-  //ui_->login_state->AddCredentialField(ui_->mail);
   ui_->login_state->AddCredentialField(ui_->token);
-  //ui_->login_state->AddCredentialField(ui_->password);
   ui_->login_state->AddCredentialGroup(ui_->groupBox);
 
   ui_->token->setMinimumWidth(QFontMetrics(QFont()).width("00000000-0000-0000-0000-000000000000"));
@@ -62,9 +56,11 @@ C3sImpSettingsPage::C3sImpSettingsPage(SettingsDialog* dialog)
   resize(sizeHint());
 }
 
-C3sImpSettingsPage::~C3sImpSettingsPage() { /*delete ui_*/; }
+AdoreSettingsPage::~AdoreSettingsPage() { /*delete ui_*/; }
 
-void C3sImpSettingsPage::RegisterToken() {
+/// Create a unique client id and register it with the backend server using a browser window.
+/// The client uuid is transferred in the url path along with a SHA1 hash
+void AdoreSettingsPage::RegisterToken() {
   //waiting_for_auth_ = true;
 
   // create a new uuid
@@ -76,28 +72,25 @@ void C3sImpSettingsPage::RegisterToken() {
   }
 
   QSettings s;
-  s.beginGroup(C3sImpService::kSettingsGroup);
-  QString host = QString(C3sImpService::kUrl), port = QString::number(C3sImpService::kPort);
-  QString temp_host = s.value("host").toString();
+  s.beginGroup(AdoreService::kSettingsGroup);
+  QString host = QString(AdoreService::kWebUrl), port = QString::number(AdoreService::kWebPort);
+  QString temp_host = s.value("webhost").toString();
   if (temp_host != "") { if (temp_host.left(4) != "http") temp_host = "http://" + temp_host; host = temp_host; }
-  QString temp_port = s.value("port").toString();
+  QString temp_port = s.value("webport").toString();
   if (temp_port != "") port = temp_port;
   QUrl url(host);
-  QString path = (QString)C3sImpService::kAuthorize + "/" + uuid + "/"
-          + QCryptographicHash::hash(uuid.toAscii(), QCryptographicHash::Sha1).toHex();
+  QString path = (QString)AdoreService::kWebAuthorize /* + "/" + uuid + "/"
+          + QCryptographicHash::hash(uuid.toAscii(), QCryptographicHash::Sha1).toHex() */;
 
   url.setPath(path);
   url.setPort(port.toInt());
-  //url.addQueryItem("uuid", uuid);          we don't use url params, just put 'em in the path
-  //url.addQueryItem("hash", "DUMMY_HASH");
+  url.addQueryItem("uuid", uuid);         // this is not true: we don't use url params any more, we have just put 'em in the path
+  url.addQueryItem("hash", QCryptographicHash::hash(uuid.toAscii(), QCryptographicHash::Sha1).toHex());
   QDesktopServices::openUrl(url);
-
-//  ui_->login_state->SetLoggedIn(LoginStateWidget::LoginInProgress);
-//  service_->Authenticate(ui_->username->text(), ui_->password->text());
 }
 
-void C3sImpSettingsPage::AuthenticationComplete(bool success,
-                                                const QString& message) {
+/// remnant of the lastfm implementation. maybe use it in the future for better ui integration.
+void AdoreSettingsPage::AuthenticationComplete(bool success, const QString& message) {
   if (!waiting_for_auth_) return;  // Wasn't us that was waiting for auth
 
   waiting_for_auth_ = false;
@@ -108,7 +101,7 @@ void C3sImpSettingsPage::AuthenticationComplete(bool success,
     // Save settings
     Save();
   } else {
-    QString dialog_text = tr("Your C3sImp credentials were incorrect");
+    QString dialog_text = tr("Your Adore credentials were incorrect");
     if (!message.isEmpty()) {
       dialog_text = message;
     }
@@ -118,25 +111,23 @@ void C3sImpSettingsPage::AuthenticationComplete(bool success,
   RefreshControls(success);
 }
 
-void C3sImpSettingsPage::Load() {
+/// Load Settings from the config file.
+void AdoreSettingsPage::Load() {
 
   QSettings s;
-  s.beginGroup(C3sImpService::kSettingsGroup);
+  s.beginGroup(AdoreService::kSettingsGroup);
 
   //  ui_->lowRatingException->setChecked(service_->IsLowRatingException());
-  //ui_->mail->setText(s.value("mail").toString());
-  //ui_->password->setText(s.value("password").toString());
   ui_->token->setText(s.value("token").toString());
 
   //RefreshControls(service_->IsAuthenticated());
 }
 
-void C3sImpSettingsPage::Save() {
+/// Save settings to the config file.
+void AdoreSettingsPage::Save() {
   QSettings s;
-  s.beginGroup(C3sImpService::kSettingsGroup);
+  s.beginGroup(AdoreService::kSettingsGroup);
 
-  //s.setValue("mail", ui_->mail->text());
-  //s.setValue("password", ui_->password->text());
   s.setValue("token", ui_->token->text());
 //  s.setValue("LowRatingException", ui_->lowRatingException->isChecked());
   s.endGroup();
@@ -144,16 +135,16 @@ void C3sImpSettingsPage::Save() {
 //  service_->ReloadSettings();
 }
 
-void C3sImpSettingsPage::Logout() {
-//  ui_->username->clear();
-//  ui_->password->clear();
+// for possible future use.
+void AdoreSettingsPage::Logout() {
   RefreshControls(false);
 
 //  service_->SignOut();
 }
 
-void C3sImpSettingsPage::RefreshControls(bool authenticated) {
+// for future proper control of the `LoginStateWidget`
+void AdoreSettingsPage::RefreshControls(bool authenticated) {
 //  ui_->login_state->SetLoggedIn(
 //      authenticated ? LoginStateWidget::LoggedIn : LoginStateWidget::LoggedOut,
-//      c3simp::ws::Username);
+//      "");
 }

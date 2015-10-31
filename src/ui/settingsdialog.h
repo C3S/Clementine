@@ -58,7 +58,7 @@ class SettingsDialog : public QDialog {
   ~SettingsDialog();
 
   enum Page {
-    Page_C3sImp,
+    Page_Adore,
     Page_Playback,
     Page_Behaviour,
     Page_SongInformation,
